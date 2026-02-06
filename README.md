@@ -1,1 +1,1 @@
-# olives-jewelry-custom-options
+olives-jewelry-custom-options.php
