@@ -1,16 +1,16 @@
 <?php
 /**
  * Plugin Name: Olives Jewelry Custom Options
- * Description: מערכת חריטה מקצועית עם ממשק Drag & Drop ותמיכה בבחירת פונטים ומחירים דינמיים.
+ * Description: מערכת חריטה מקצועית עם ממשק Drag & Drop ותמיכה במחירים דינמיים.
  * Version:     1.2.0
- * Author:      Gemini AI for Olives Jewelry
+ * Author:      Olives Jewelry
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 define( 'OJC_URL', plugin_dir_url( __FILE__ ) );
 
-// 1. טעינת סקריפטים ללוח הבקרה
+// 1. טעינת סקריפטים לניהול
 add_action( 'admin_enqueue_scripts', function( $hook ) {
     global $post_type;
     if ( 'product' !== $post_type ) return;
@@ -23,7 +23,7 @@ add_action( 'admin_enqueue_scripts', function( $hook ) {
     ));
 });
 
-// 2. הוספת לשונית בניהול המוצר
+// 2. הוספת לשונית בעריכת מוצר
 add_filter( 'woocommerce_product_data_tabs', function( $tabs ) {
     $tabs['ojc_custom_options'] = array(
         'label'    => 'וריאציות חריטה',
@@ -34,7 +34,7 @@ add_filter( 'woocommerce_product_data_tabs', function( $tabs ) {
     return $tabs;
 });
 
-// 3. תצוגת ממשק הניהול (המכולה ל-JS)
+// 3. ממשק הניהול בלשונית
 add_action( 'woocommerce_product_data_panels', function() {
     ?>
     <div id="ojc_custom_options_data" class="panel woocommerce_options_panel hidden" style="padding: 20px;">
@@ -57,27 +57,7 @@ add_action( 'woocommerce_product_data_panels', function() {
 // 4. שמירת הנתונים
 add_action( 'woocommerce_process_product_meta', function( $post_id ) {
     if ( isset( $_POST['ojc_fields'] ) ) {
-        $data = array();
-        foreach ( $_POST['ojc_fields'] as $key => $field ) {
-            $entry = array(
-                'id'       => sanitize_text_field( $key ),
-                'label'    => sanitize_text_field( $field['label'] ),
-                'type'     => sanitize_text_field( $field['type'] ),
-                'price'    => floatval( $field['price'] ),
-                'required' => isset( $field['required'] ),
-                'options'  => array()
-            );
-            if ( isset( $field['options'] ) ) {
-                foreach ( $field['options'] as $o_key => $opt ) {
-                    $entry['options'][] = array(
-                        'label' => sanitize_text_field( $opt['label'] ),
-                        'price' => floatval( $opt['price'] )
-                    );
-                }
-            }
-            $data[] = $entry;
-        }
-        update_post_meta( $post_id, '_ojc_fields_data', $data );
+        update_post_meta( $post_id, '_ojc_fields_data', $_POST['ojc_fields'] );
     } else {
         delete_post_meta( $post_id, '_ojc_fields_data' );
     }
