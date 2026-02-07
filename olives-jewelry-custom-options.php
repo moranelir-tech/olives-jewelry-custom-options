@@ -1,64 +1,65 @@
 <?php
 /**
- * Plugin Name: Olives Jewelry Custom Options
- * Description: מערכת חריטה מקצועית עם ממשק Drag & Drop ותמיכה במחירים דינמיים.
- * Version:     1.2.0
+ * Plugin Name: Olives Jewelry Global Options
+ * Description: ניהול וריאציות חריטה בסטים גלובליים ושיוך למוצרים.
+ * Version:     2.0.0
  * Author:      Olives Jewelry
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'OJC_URL', plugin_dir_url( __FILE__ ) );
-
-// 1. טעינת סקריפטים לניהול
-add_action( 'admin_enqueue_scripts', function( $hook ) {
-    global $post_type;
-    if ( 'product' !== $post_type ) return;
-
-    wp_enqueue_script( 'sortable-js', 'https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js', array(), '1.14.0', true );
-    wp_enqueue_script( 'ojc-admin-script', OJC_URL . 'assets/js/admin-script.js', array( 'jquery', 'sortable-js' ), time(), true );
-    
-    wp_localize_script( 'ojc-admin-script', 'ojc_vars', array(
-        'existing_fields' => get_post_meta( get_the_ID(), '_ojc_fields_data', true ) ?: []
-    ));
-});
-
-// 2. הוספת לשונית בעריכת מוצר
-add_filter( 'woocommerce_product_data_tabs', function( $tabs ) {
-    $tabs['ojc_custom_options'] = array(
-        'label'    => 'וריאציות חריטה',
-        'target'   => 'ojc_custom_options_data',
-        'class'    => array( 'show_if_simple', 'show_if_variable' ),
-        'priority' => 21,
+// יצירת תפריט ניהול ראשי בסרגל הצידי של וורדפרס
+add_action('admin_menu', function() {
+    add_menu_page(
+        'חוקי חריטה',
+        'חוקי חריטה',
+        'manage_options',
+        'ojc-global-options',
+        'ojc_global_settings_page',
+        'dashicons-edit-page',
+        30
     );
-    return $tabs;
 });
 
-// 3. ממשק הניהול בלשונית
-add_action( 'woocommerce_product_data_panels', function() {
+// עמוד הגדרות הסטים
+function ojc_global_settings_page() {
+    $global_sets = get_option('ojc_global_sets', []);
     ?>
-    <div id="ojc_custom_options_data" class="panel woocommerce_options_panel hidden" style="padding: 20px;">
-        <h3 style="margin-top:0;">ניהול שדות חריטה (Drag & Drop)</h3>
-        <ul id="ojc-sortable-list" style="margin-bottom:20px; list-style:none; padding:0;"></ul>
-        <button type="button" class="button button-primary" id="ojc-add-new-field">+ הוסף שדה חדש</button>
-
-        <style>
-            .ojc-field-row { background: #fff; border: 1px solid #ccd0d4; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,.04); }
-            .ojc-field-header { cursor: move; background: #f7f7f7; padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-            .ojc-field-body { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-            .ojc-options-wrapper { background: #f9f9f9; padding: 15px; border-top: 1px solid #eee; }
-            .ojc-option-item { display: flex; gap: 10px; margin-bottom: 8px; }
-            .ojc-remove-field { color: #a00; cursor: pointer; border: none; background: none; font-weight: bold; }
-        </style>
+    <div class="wrap">
+        <h1>ניהול סטים גלובליים לחריטה</h1>
+        <p>כאן יוצרים את הסטים שיופיעו במוצרים.</p>
+        
+        <form method="post" action="options.php">
+            <?php settings_fields('ojc_global_group'); ?>
+            <div id="global-sets-container">
+                <p><strong>טיפ:</strong> כרגע נגדיר סט ברירת מחדל אחד חזק שמתאים לכולם.</p>
+            </div>
+            <?php submit_button(); ?>
+        </form>
     </div>
     <?php
+}
+
+// הוספת אפשרות בחירת סט בתוך עמוד המוצר
+add_action( 'woocommerce_product_options_general_product_data', function() {
+    echo '<div class="options_group">';
+    
+    // רשימה נפתחת לבחירת סט חוקים
+    woocommerce_wp_select( array(
+        'id'      => '_ojc_selected_set',
+        'label'   => 'בחר סט חריטה גלובלי',
+        'options' => array(
+            ''          => 'ללא חריטה',
+            'bracelets' => 'סט חריטה לצמידים (פונט + טקסט)',
+            'rings'     => 'סט חריטה לטבעות (חריטה פנימית)',
+        ),
+    ));
+    
+    echo '</div>';
 });
 
-// 4. שמירת הנתונים
+// שמירת הבחירה של המוצר
 add_action( 'woocommerce_process_product_meta', function( $post_id ) {
-    if ( isset( $_POST['ojc_fields'] ) ) {
-        update_post_meta( $post_id, '_ojc_fields_data', $_POST['ojc_fields'] );
-    } else {
-        delete_post_meta( $post_id, '_ojc_fields_data' );
-    }
+    $selected_set = isset( $_POST['_ojc_selected_set'] ) ? $_POST['_ojc_selected_set'] : '';
+    update_post_meta( $post_id, '_ojc_selected_set', $selected_set );
 });
