@@ -1,65 +1,79 @@
 <?php
 /**
- * Plugin Name: Olives Jewelry Global Options
- * Description: ניהול וריאציות חריטה בסטים גלובליים ושיוך למוצרים.
- * Version:     2.0.0
+ * Plugin Name: Olives Jewelry Custom Options Pro
+ * Description: מנוע לבניית חוקי חריטה גלובליים ושיוך למוצרים.
+ * Version:     3.0.0
  * Author:      Olives Jewelry
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// יצירת תפריט ניהול ראשי בסרגל הצידי של וורדפרס
+define( 'OJC_URL', plugin_dir_url( __FILE__ ) );
+
+// 1. יצירת תפריט ניהול ראשי
 add_action('admin_menu', function() {
     add_menu_page(
-        'חוקי חריטה',
-        'חוקי חריטה',
-        'manage_options',
-        'ojc-global-options',
-        'ojc_global_settings_page',
-        'dashicons-edit-page',
-        30
+        'ניהול חריטות',     // שם העמוד
+        'ניהול חריטות',     // שם בתפריט
+        'manage_options',   // הרשאות
+        'ojc-global-builder', // Slug
+        'ojc_render_global_builder', // פונקציית התצוגה
+        'dashicons-art',    // אייקון
+        30                  // מיקום
     );
 });
 
-// עמוד הגדרות הסטים
-function ojc_global_settings_page() {
-    $global_sets = get_option('ojc_global_sets', []);
+// 2. פונקציית התצוגה של הפאנל המרכזי
+function ojc_render_global_builder() {
+    // שליפת כל הסטים ששמרנו
+    $global_sets = get_option('ojc_global_sets', array());
     ?>
-    <div class="wrap">
-        <h1>ניהול סטים גלובליים לחריטה</h1>
-        <p>כאן יוצרים את הסטים שיופיעו במוצרים.</p>
+    <div class="wrap" id="ojc-global-app">
+        <h1>בונה סטים גלובליים לחריטה</h1>
+        <p>כאן אתה בונה את ה"חוקים". אחרי שתשמור סט, תוכל לשייך אותו לכל מוצר בעמוד עריכת המוצר.</p>
         
-        <form method="post" action="options.php">
-            <?php settings_fields('ojc_global_group'); ?>
-            <div id="global-sets-container">
-                <p><strong>טיפ:</strong> כרגע נגדיר סט ברירת מחדל אחד חזק שמתאים לכולם.</p>
+        <div id="ojc-sets-list">
             </div>
-            <?php submit_button(); ?>
-        </form>
+
+        <button type="button" class="button button-primary" id="ojc-create-new-set">
+            + צור סט חוקים חדש
+        </button>
+
+        <div id="ojc-builder-modal" style="display:none; margin-top:20px; background:#fff; border:1px solid #ccc; padding:20px;">
+            <h2 id="set-title">עריכת סט</h2>
+            <input type="text" id="ojc-set-name" placeholder="שם הסט (למשל: חריטה דו-צדדית)" style="width:100%; font-size:1.5em; margin-bottom:20px;">
+            
+            <ul id="ojc-sortable-list" style="list-style:none; padding:0;"></ul>
+            
+            <button type="button" class="button" id="ojc-add-field-btn">+ הוסף שדה לסט</button>
+            <hr>
+            <button type="button" class="button button-primary" id="ojc-save-global-set">שמור סט חוקים</button>
+        </div>
     </div>
     <?php
 }
 
-// הוספת אפשרות בחירת סט בתוך עמוד המוצר
+// 3. הוספת בחירת סט בתוך עמוד המוצר (WooCommerce)
 add_action( 'woocommerce_product_options_general_product_data', function() {
+    $global_sets = get_option('ojc_global_sets', array());
+    $options = array('' => '--- ללא חריטה ---');
+    
+    foreach ( $global_sets as $id => $set ) {
+        $options[$id] = $set['name'];
+    }
+
     echo '<div class="options_group">';
-    
-    // רשימה נפתחת לבחירת סט חוקים
     woocommerce_wp_select( array(
-        'id'      => '_ojc_selected_set',
-        'label'   => 'בחר סט חריטה גלובלי',
-        'options' => array(
-            ''          => 'ללא חריטה',
-            'bracelets' => 'סט חריטה לצמידים (פונט + טקסט)',
-            'rings'     => 'סט חריטה לטבעות (חריטה פנימית)',
-        ),
+        'id'      => '_ojc_assigned_set',
+        'label'   => 'שייך סט חריטה למוצר זה',
+        'options' => $options,
     ));
-    
     echo '</div>';
 });
 
-// שמירת הבחירה של המוצר
+// 4. שמירת השיוך במוצר
 add_action( 'woocommerce_process_product_meta', function( $post_id ) {
-    $selected_set = isset( $_POST['_ojc_selected_set'] ) ? $_POST['_ojc_selected_set'] : '';
-    update_post_meta( $post_id, '_ojc_selected_set', $selected_set );
+    if ( isset( $_POST['_ojc_assigned_set'] ) ) {
+        update_post_meta( $post_id, '_ojc_assigned_set', $_POST['_ojc_assigned_set'] );
+    }
 });
