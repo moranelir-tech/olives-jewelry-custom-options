@@ -1,38 +1,39 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const list = document.getElementById('ojc-sortable-list');
-    const addButton = document.getElementById('ojc-add-new-field');
-    if (!list || !addButton) return;
+jQuery(document).ready(function($) {
+    console.log("OJC Builder Loaded!"); // בדיקה בקונסול שהסקריפט עובד
 
-    new Sortable(list, { animation: 150, handle: '.ojc-field-header' });
+    const builderModal = $('#ojc-builder-modal');
+    const fieldList = $('#ojc-sortable-list');
 
-    function createFieldRow(data = {}) {
-        const id = data.id || 'f' + Date.now();
-        const row = document.createElement('li');
-        row.className = 'ojc-field-row';
-        row.innerHTML = `
-            <div class="ojc-field-header">
-                <strong>☰ <span class="title-prev">${data.label || 'שדה חדש'}</span></strong>
-                <button type="button" class="ojc-remove-field">✖ הסר</button>
-            </div>
-            <div class="ojc-field-body">
-                <div><label>כותרת:</label><input type="text" name="ojc_fields[${id}][label]" value="${data.label || ''}" class="widefat field-label"></div>
-                <div><label>סוג:</label>
-                    <select name="ojc_fields[${id}][type]" class="widefat type-sel">
-                        <option value="text" ${data.type === 'text' ? 'selected' : ''}>טקסט</option>
-                        <option value="radio" ${data.type === 'radio' ? 'selected' : ''}>בחירת פונט / רדיו</option>
-                        <option value="file" ${data.type === 'file' ? 'selected' : ''}>תמונה</option>
+    // פתיחת הממשק
+    $('#ojc-create-new-set').on('click', function(e) {
+        e.preventDefault();
+        console.log("Button Clicked");
+        builderModal.show();
+        $(this).hide();
+    });
+
+    // הוספת שדה
+    $('#ojc-add-field-btn').on('click', function() {
+        const id = 'f' + Math.floor(Math.random() * 1000000);
+        const html = `
+            <li class="ojc-field-row" style="border:1px solid #ccc; background:#f9f9f9; padding:15px; margin-bottom:10px; list-style:none;">
+                <div class="ojc-field-header"><strong>☰ שדה חדש</strong></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <input type="text" placeholder="שם השדה (למשל: חריטה בצד ב')" class="f-label" style="width:100%">
+                    <select class="f-type" style="width:100%">
+                        <option value="text">טקסט</option>
+                        <option value="radio">כן/לא (Radio)</option>
                     </select>
+                    <input type="number" placeholder="תוספת מחיר" class="f-price" style="width:100%">
+                    <input type="text" placeholder="לוגיקה (הצג אם שדה קודם שווה ל...)" class="f-logic" style="width:100%">
                 </div>
-                <div><label>מחיר בסיס:</label><input type="number" name="ojc_fields[${id}][price]" value="${data.price || 0}" class="widefat"></div>
-            </div>
-        `;
-        row.querySelector('.field-label').oninput = function() { row.querySelector('.title-prev').textContent = this.value; };
-        row.querySelector('.ojc-remove-field').onclick = () => row.remove();
-        list.appendChild(row);
-    }
+                <button type="button" class="remove-f" style="color:red; margin-top:10px; cursor:pointer;">✖ הסר שדה</button>
+            </li>`;
+        fieldList.append(html);
+    });
 
-    addButton.onclick = () => createFieldRow();
-    if (window.ojc_vars && ojc_vars.existing_fields) {
-        Object.values(ojc_vars.existing_fields).forEach(f => createFieldRow(f));
-    }
+    // הסרת שדה
+    $(document).on('click', '.remove-f', function() {
+        $(this).closest('li').remove();
+    });
 });
