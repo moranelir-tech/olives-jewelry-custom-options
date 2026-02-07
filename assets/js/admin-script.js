@@ -1,39 +1,78 @@
 jQuery(document).ready(function($) {
-    console.log("OJC Builder Loaded!"); // בדיקה בקונסול שהסקריפט עובד
+    /**
+     * 1. לוגיקת הצגה/הסתרה (Conditional Logic)
+     * סורק את כל שדות ה-Radio וה-Select ובודק אם יש שדות שתלויים בהם
+     */
+    function refreshOjcLogic() {
+        let selectedValues = [];
+        
+        // אוסף ערכים מ-Radio שנבחרו
+        $('.ojc-trig:checked').each(function() {
+            selectedValues.push($(this).val());
+        });
+        
+        // אוסף ערכים מ-Select (לבחירת כמות שמות למשל)
+        $('select.ojc-trig').each(function() {
+            if ($(this).val()) {
+                selectedValues.push($(this).val());
+            }
+        });
 
-    const builderModal = $('#ojc-builder-modal');
-    const fieldList = $('#ojc-sortable-list');
+        // עובר על כל השדות שיש להם דרישת לוגיקה
+        $('.ojc-field-row[data-logic-req]').each(function() {
+            const requiredValue = $(this).attr('data-logic-req');
+            
+            // אם הערך הנדרש נמצא ברשימת הנבחרים - הצג, אחרת הסתר
+            if (selectedValues.includes(requiredValue)) {
+                $(this).slideDown(250);
+            } else {
+                $(this).slideUp(250);
+            }
+        });
+    }
 
-    // פתיחת הממשק
-    $('#ojc-create-new-set').on('click', function(e) {
-        e.preventDefault();
-        console.log("Button Clicked");
-        builderModal.show();
-        $(this).hide();
-    });
+    // הפעלה בכל שינוי בשדה טריגר
+    $(document).on('change', '.ojc-trig', refreshOjcLogic);
+    
+    // הרצה ראשונית בטעינת הדף
+    refreshOjcLogic();
 
-    // הוספת שדה
-    $('#ojc-add-field-btn').on('click', function() {
-        const id = 'f' + Math.floor(Math.random() * 1000000);
-        const html = `
-            <li class="ojc-field-row" style="border:1px solid #ccc; background:#f9f9f9; padding:15px; margin-bottom:10px; list-style:none;">
-                <div class="ojc-field-header"><strong>☰ שדה חדש</strong></div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <input type="text" placeholder="שם השדה (למשל: חריטה בצד ב')" class="f-label" style="width:100%">
-                    <select class="f-type" style="width:100%">
-                        <option value="text">טקסט</option>
-                        <option value="radio">כן/לא (Radio)</option>
-                    </select>
-                    <input type="number" placeholder="תוספת מחיר" class="f-price" style="width:100%">
-                    <input type="text" placeholder="לוגיקה (הצג אם שדה קודם שווה ל...)" class="f-logic" style="width:100%">
-                </div>
-                <button type="button" class="remove-f" style="color:red; margin-top:10px; cursor:pointer;">✖ הסר שדה</button>
-            </li>`;
-        fieldList.append(html);
-    });
+    /**
+     * 2. מקלדת אימוג'ים (Emoji Picker)
+     * משתמש בספריית EmojiButton שהוספנו ב-PHP
+     */
+    if (typeof EmojiButton !== 'undefined') {
+        $('.ojc-emoji-btn').each(function() {
+            const button = this;
+            const targetInput = $(button).siblings('input.ojc-input');
+            
+            // הגדרת המקלדת
+            const picker = new EmojiButton({
+                position: 'bottom-start',
+                rootElement: document.body,
+                autoHide: true
+            });
 
-    // הסרת שדה
-    $(document).on('click', '.remove-f', function() {
-        $(this).closest('li').remove();
-    });
+            // מה קורה כשבוחרים אימוג'י
+            picker.on('emoji', selection => {
+                const currentVal = targetInput.val();
+                targetInput.val(currentVal + selection);
+                targetInput.focus(); // החזרת הפוקוס לשדה
+            });
+
+            // פתיחת המקלדת בלחיצה
+            $(button).on('click', function(e) {
+                e.preventDefault();
+                picker.togglePicker(button);
+            });
+        });
+    }
+
+    /**
+     * 3. תמיכה בהעלאת קבצים
+     * מוודא שהטופס של WooCommerce יודע לשלוח קבצים (enctype)
+     */
+    if ($('.ojc-file-input').length > 0) {
+        $('form.cart').attr('enctype', 'multipart/form-data');
+    }
 });
