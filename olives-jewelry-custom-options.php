@@ -1,72 +1,131 @@
 <?php
 /**
- * Plugin Name: Olives Jewelry Custom Options
- * Version: 8.7.0
+ * Plugin Name: Olives Jewelry Custom Options - Ultimate PRO
+ * Version:     15.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// טעינת קבצים
+// טעינת ספריות ועיצובים
 add_action( 'admin_enqueue_scripts', function() {
-    wp_enqueue_script( 'sortable-js', 'https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js', array(), '1.14.0', true );
     wp_enqueue_style( 'select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css' );
     wp_enqueue_script( 'select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', array('jquery'), '4.1.0', true );
-    // טעינת הסקריפט שלך מתוך התיקייה
     wp_enqueue_script( 'ojc-admin-script', plugin_dir_url( __FILE__ ) . 'assets/js/admin-script.js', array('jquery'), time(), true );
+    wp_enqueue_style( 'ojc-admin-style', plugin_dir_url( __FILE__ ) . 'assets/css/style.css', array(), time() );
 });
 
 add_action( 'wp_enqueue_scripts', function() {
-    wp_enqueue_style( 'ojc-style', plugin_dir_url( __FILE__ ) . 'assets/css/style.css', array(), time() );
+    wp_enqueue_style( 'ojc-fe-style', plugin_dir_url( __FILE__ ) . 'assets/css/style.css', array(), time() );
     wp_enqueue_script( 'ojc-main-js', plugin_dir_url( __FILE__ ) . 'assets/js/main.js', array('jquery'), time(), true );
 });
 
-// תפריט ניהול
+// יצירת תפריט הניהול
 add_action('admin_menu', function() {
-    add_menu_page('ניהול חריטות', 'ניהול חריטות', 'manage_options', 'ojc-global-builder', 'ojc_render_global_builder', 'dashicons-art', 30);
+    add_menu_page('ניהול חריטות', 'ניהול חריטות', 'manage_options', 'ojc-global-builder', 'ojc_render_builder', 'dashicons-art', 30);
 });
 
-function ojc_render_global_builder() {
+function ojc_render_builder() {
     $sets = get_option('ojc_global_sets', array());
     $edit_id = isset($_GET['edit']) ? sanitize_text_field($_GET['edit']) : '';
     $current_set = ($edit_id && isset($sets[$edit_id])) ? $sets[$edit_id] : null;
 
-    if ( isset($_POST['ojc_save_nonce']) && wp_verify_nonce($_POST['ojc_save_nonce'], 'ojc_save_action') ) {
-        $id = !empty($_POST['ojc_set_id']) ? sanitize_text_field($_POST['ojc_set_id']) : 'set_' . time();
-        $sets[$id] = array(
-            'name'     => sanitize_text_field($_POST['ojc_set_name']),
-            'fields'   => $_POST['ojc_fields'],
-            'products' => isset($_POST['ojc_assigned_products']) ? $_POST['ojc_assigned_products'] : array()
-        );
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ojc_save_nonce'])) {
+        $id = $edit_id ?: 'set_' . time();
+        $sets[$id] = [
+            'name' => sanitize_text_field($_POST['ojc_set_name']),
+            'fields' => $_POST['ojc_fields'] ?? [],
+            'products' => $_POST['ojc_assigned_products'] ?? []
+        ];
         update_option('ojc_global_sets', $sets);
-        echo '<script>window.location.href="admin.php?page=ojc-global-builder&edit='.$id.'&saved=1";</script>';
+        
+        // עדכון מטא-דאטה למוצרים
+        $all_p = get_posts(['post_type'=>'product','numberposts'=>-1]);
+        foreach($all_p as $p) { 
+            if(get_post_meta($p->ID, '_ojc_assigned_set', true) == $id) delete_post_meta($p->ID, '_ojc_assigned_set'); 
+        }
+        if(!empty($sets[$id]['products'])) {
+            foreach($sets[$id]['products'] as $pid) { update_post_meta($pid, '_ojc_assigned_set', $id); }
+        }
+        echo "<script>window.location.href='admin.php?page=ojc-global-builder&edit=$id&saved=1';</script>";
     }
     ?>
     <div class="wrap" style="direction: rtl;">
-        <h1>ניהול חריטות</h1>
-        <form method="post">
+        <h1>עורך חריטות מקצועי</h1>
+        
+        <form method="post" id="ojc-builder-form">
             <?php wp_nonce_field('ojc_save_action', 'ojc_save_nonce'); ?>
             <input type="hidden" name="ojc_set_id" value="<?php echo esc_attr($edit_id); ?>">
             
-            <div class="ojc-admin-card">
-                <div class="ojc-header-row">
-                    <input type="text" name="ojc_set_name" placeholder="שם הסט" value="<?php echo $current_set ? esc_attr($current_set['name']) : ''; ?>" required>
-                    <select name="ojc_assigned_products[]" id="ojc-prod-select" multiple="multiple">
-                        <?php foreach(get_posts(array('post_type'=>'product','numberposts'=>-1)) as $p) {
-                            $sel = ($current_set && in_array($p->ID, ($current_set['products'] ?? []))) ? 'selected' : '';
-                            echo '<option value="'.$p->ID.'" '.$sel.'>'.$p->post_title.'</option>';
-                        } ?>
-                    </select>
-                </div>
-
-                <div id="ojc-fields-wrapper" data-existing='<?php echo $current_set ? json_encode($current_set['fields']) : "null"; ?>'>
+            <div class="ojc-admin-card header-box">
+                <div style="display:flex; gap:20px; align-items:flex-end;">
+                    <div style="flex:1;">
+                        <label>שם הסט:</label>
+                        <input type="text" name="ojc_set_name" value="<?php echo $current_set['name'] ?? ''; ?>" style="width:100%; height:40px;" required>
                     </div>
+                    <div style="flex:2;">
+                        <label>חפש ושייך תכשיטים:</label>
+                        <select name="ojc_assigned_products[]" id="ojc-prod-search" multiple="multiple" style="width:100%;">
+                            <?php foreach(get_posts(['post_type'=>'product','numberposts'=>-1]) as $p): 
+                                $sel = ($current_set && in_array($p->ID, ($current_set['products'] ?? []))) ? 'selected' : '';
+                            ?>
+                                <option value="<?php echo $p->ID; ?>" <?php echo $sel; ?>><?php echo $p->post_title; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-                <button type="button" id="add-f-btn" class="button">+ הוסף שדה (טקסט/בחירה)</button>
-                <button type="submit" class="button button-primary">שמור סט</button>
+            <div id="ojc-fields-wrapper" data-existing='<?php echo json_encode($current_set['fields'] ?? []); ?>'></div>
+            
+            <div class="ojc-footer-actions">
+                <button type="button" id="add-f-btn" class="button button-large">+ הוסף שדה חדש</button>
+                <button type="submit" class="button button-primary button-large">שמור שינויים והפעל באתר</button>
             </div>
         </form>
     </div>
+    <script>jQuery(document).ready(function($) { $('#ojc-prod-search').select2({ placeholder: "הקלד שם תכשיט לחיפוש...", dir: "rtl" }); });</script>
     <?php
 }
 
-// ... כאן להוסיף את פונקציית ה-Frontend (הצגת השדות באתר) ששלחתי קודם ...
+// תצוגה באתר (Frontend)
+add_action('woocommerce_before_add_to_cart_button', function() {
+    global $product;
+    $sid = get_post_meta($product->get_id(), '_ojc_assigned_set', true);
+    $sets = get_option('ojc_global_sets', array());
+    if (!$sid || !isset($sets[$sid])) return;
+
+    $symbols = ['❤︎', '❣︎', '✡', '♬', '♕', '♛', '♔', '𝄞', '✝', '☪', '☯', '☘'];
+
+    echo '<div class="ojc-fe-container"><div class="ojc-fe-body">';
+    foreach ($sets[$sid]['fields'] as $fid => $f) {
+        $logic = !empty($f['logic']) ? 'data-logic-req="'.esc_attr($f['logic']).'"' : '';
+        echo '<div class="ojc-field-row" '.$logic.' style="'.(!empty($f['logic'])?'display:none;':'').'">';
+        echo '<label class="ojc-label">'.esc_html($f['label']).'</label>';
+
+        if($f['type']==='text') {
+            echo '<div class="ojc-input-wrapper">';
+            echo '<input type="text" name="ojc_data['.$fid.'][v]" class="ojc-input">';
+            echo '<button type="button" class="ojc-symbol-toggle">✨</button>';
+            echo '<div class="ojc-symbol-picker" style="display:none;">';
+            foreach($symbols as $s) echo '<span class="ojc-sym-item">'.$s.'</span>';
+            echo '</div></div>';
+        } elseif($f['type']==='select') {
+            echo '<select name="ojc_data['.$fid.'][v]" class="ojc-trig">';
+            echo '<option value="">בחר...</option>';
+            foreach(($f['options']??[]) as $o) echo '<option value="'.$o['val'].'">'.$o['label'].'</option>';
+            echo '</select>';
+        } elseif($f['type']==='radio') {
+            echo '<div class="ojc-radio-group">';
+            foreach(($f['options']??[]) as $o) {
+                echo '<label><input type="radio" name="ojc_data['.$fid.'][v]" value="'.$o['val'].'" class="ojc-trig"> '.esc_html($o['label']).'</label>';
+            }
+            echo '</div>';
+        } elseif($f['type']==='file') {
+            echo '<input type="file" name="ojc_file_'.$fid.'" class="ojc-file-input">';
+        } elseif($f['type']==='html') {
+            echo '<div class="ojc-html-content">'.do_shortcode($f['label']).'</div>';
+        }
+        echo '</div>';
+    }
+    echo '</div></div>';
+});
