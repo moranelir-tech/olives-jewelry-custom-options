@@ -1,21 +1,115 @@
-/* ניהול (Admin) */
-.ojc-admin-card { background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px; }
-.ojc-header-row { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-.ojc-field-box { 
-    background: #f9f9f9; border: 1px solid #ddd; padding: 20px; 
-    margin-bottom: 15 border-right: 5px solid #2271b1; position: relative; border-radius: 4px;
+/* --- עיצוב ממשק הניהול (Admin) --- */
+.ojc-admin-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-.field-main-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-.input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
-.input-group input, .input-group select { width: 100%; padding: 8px; border: 1px solid #ccc; }
-.field-extra-settings { margin-top: 15px; background: #fff; padding: 10px; border: 1px solid #eee; }
-.remove-row { position: absolute; left: 10px; top: 10px; color: red; cursor: pointer; }
 
-/* אתר (Frontend) */
-.ojc-input-wrapper { display: flex; gap: 10px; position: relative; }
-.ojc-symbol-toggle { background: #eee; border: 1px solid #ccc; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
-.ojc-symbol-picker { 
-    position: absolute; top: 100%; left: 0; background: #fff; border: 1px solid #ddd; 
-    padding: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; z-index: 100;
+.ojc-field-card {
+    background: #fdfdfd;
+    border: 1px solid #c3c4c7;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
 }
-.ojc-sym-item { cursor: pointer; font-size: 20px; padding: 5px; text-align: center; }
+
+.ojc-card-header {
+    background: #f0f0f1;
+    padding: 10px 15px;
+    border-bottom: 1px solid #c3c4c7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ojc-card-body {
+    padding: 15px;
+}
+
+.ojc-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.ojc-grid-3 label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.ojc-grid-3 input, .ojc-grid-3 select {
+    width: 100%;
+    height: 35px;
+}
+
+.opt-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+    background: #fff;
+    padding: 10px;
+    border: 1px dashed #ccc;
+}
+
+/* --- עיצוב האתר (Frontend) --- */
+.ojc-fe-container {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.ojc-field-row {
+    margin-bottom: 15px;
+}
+
+.ojc-input-wrapper {
+    position: relative;
+}
+
+.ojc-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.ojc-symbol-toggle {
+    background: #eee;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+}
+
+.ojc-symbol-picker {
+    position: absolute;
+    bottom: 105%;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    display: grid !important; /* מבטיח שהגריד יעבוד */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    padding: 10px;
+    z-index: 999;
+}
+
+.ojc-sym-item {
+    cursor: pointer;
+    font-size: 22px;
+    text-align: center;
+    padding: 5px;
+}
+
+.ojc-sym-item:hover {
+    background: #f0f0f0;
+}
