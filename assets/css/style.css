@@ -1,252 +1,127 @@
-/* ============================================================
-   1. עיצוב ממשק הניהול (WordPress Admin Panel)
-   ============================================================ */
-
-/* מיכל ראשי */
-.wrap {
-    max-width: 1200px;
-    margin: 20px auto;
+/* --- Frontend Styles (אתר) --- */
+.ojc-branded-container { 
+    background:#fff; 
+    border:1px solid #e2e2e2; 
+    border-radius:15px; 
+    padding:20px; 
+    margin:25px 0; 
+    direction:rtl; 
+    box-shadow:0 4px 15px rgba(0,0,0,0.05); 
 }
 
-/* כרטיסיית ניהול הסטים הכללית */
-.ojc-admin-card {
-    background: #fff;
-    border: 1px solid #ccd0d4;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+.ojc-section-header { 
+    display:flex; 
+    align-items:center; 
+    gap:12px; 
+    margin-bottom:25px; 
+    padding-bottom:12px; 
+    border-bottom:2px solid #f0f0f0; 
+    pointer-events:none; 
 }
 
-/* עיצוב כרטיסיית שדה בודד (Field Card) */
-.ojc-field-card {
-    background: #fdfdfd;
-    border: 1px solid #c3c4c7;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.07);
-    overflow: hidden;
+.ojc-step-badge { 
+    background:#222; 
+    color:#fff; 
+    width:24px; 
+    height:24px; 
+    border-radius:50%; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+    font-size:12px; 
+    font-weight:bold; 
 }
 
-/* כותרת הכרטיסייה בניהול */
-.ojc-card-header {
-    background: #f0f0f1;
-    padding: 12px 20px;
-    border-bottom: 1px solid #c3c4c7;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.ojc-section-title { 
+    font-size:1.2em!important; 
+    font-weight:800!important; 
+    color:#222!important; 
+    margin:0!important; 
 }
 
-.ojc-card-header strong {
-    font-size: 14px;
-    color: #1d2327;
+.ojc-label { 
+    display:block; 
+    font-size:0.95em; 
+    font-weight:600; 
+    margin-bottom:10px; 
+    color:#333; 
 }
 
-/* גוף הכרטיסייה בניהול */
-.ojc-card-body {
-    padding: 20px;
+.ojc-row-price { 
+    font-weight:500; 
+    color:#888; 
+    font-size:0.9em; 
+    margin-right:4px; 
 }
 
-/* פריסת גריד (3 עמודות) לשדות הניהול */
-.ojc-grid-3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 15px;
+.ojc-input, select.ojc-trig { 
+    width:100%; 
+    padding:12px; 
+    border:1px solid #ddd; 
+    border-radius:8px; 
+    font-size:16px; 
+    box-sizing:border-box; 
+    background:#fff;
 }
 
-.ojc-grid-3 label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #50575e;
+.ojc-input-wrapper { 
+    display:flex; 
+    align-items:center; 
+    gap:10px; 
+    position:relative; 
 }
 
-.ojc-grid-3 input, 
-.ojc-grid-3 select {
-    width: 100% !important;
-    height: 38px !important;
-    border: 1px solid #8c8f94;
-    border-radius: 4px;
+.ojc-symbol-toggle { 
+    background:#fff; 
+    border:1px solid #ccc; 
+    border-radius:8px; 
+    padding:8px 12px; 
+    cursor:pointer; 
+    font-size:20px; 
 }
 
-/* עיצוב רשימת אופציות (Select Options) בניהול */
-.opt-section {
-    background: #f6f7f7;
-    padding: 15px;
-    border-radius: 6px;
-    border: 1px solid #dcdcde;
-    margin-top: 15px;
+.ojc-symbol-picker { 
+    display:none!important; 
+    position:absolute; 
+    bottom:115%; 
+    left:0; 
+    background:#fff; 
+    border:1px solid #ddd; 
+    box-shadow:0 8px 25px rgba(0,0,0,0.15); 
+    border-radius:12px; 
+    padding:15px; 
+    z-index:9999; 
 }
 
-.opt-list div {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    align-items: center;
+.ojc-symbol-picker[style*="display: block"] { 
+    display:grid!important; 
+    grid-template-columns:repeat(4, 1fr); 
+    gap:12px; 
 }
 
-.remove-o {
-    color: #d63638;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
+.ojc-sym-item { 
+    cursor:pointer; 
+    font-size:24px; 
+    text-align:center; 
+    padding:5px; 
 }
 
-.remove-f {
-    color: #d63638;
-    background: none;
-    border: 1px solid #d63638;
-    padding: 4px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
+.ojc-final-price-box { 
+    margin-top:25px; 
+    padding:15px; 
+    background:#fdfdfd; 
+    border-radius:10px; 
+    text-align:center; 
+    font-weight:bold; 
+    font-size:1.25em; 
+    border:1px solid #eee; 
 }
 
-.remove-f:hover {
-    background: #d63638;
-    color: #fff;
-}
+#ojc-total-display { color:#d63638; }
 
-/* ============================================================
-   2. עיצוב האתר (Frontend - דף מוצר)
-   ============================================================ */
-
-/* המיכל הראשי של כל האופציות */
-.ojc-fe-container {
-    margin: 20px 0;
-    padding: 20px;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    background: #fafafa;
-    direction: rtl;
-}
-
-/* שורת שדה (תווית + קלט) */
-.ojc-field-row {
-    margin-bottom: 20px;
-}
-
-.ojc-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
-.ojc-row-price {
-    color: #666;
-    font-weight: normal;
-    font-size: 0.85em;
-    margin-right: 5px;
-}
-
-/* עיצוב שדה הטקסט והאימוג'י */
-.ojc-input-wrapper {
-    display: flex;
-    align-items: flex-end; /* מיישר את הלב והכיתוב לשורה אחת עם השדה */
-    gap: 12px;
-    position: relative;
-}
-
-.ojc-input {
-    flex: 1;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-}
-
-/* כפתור הלב והכיתוב שמעליו */
-.ojc-emoji-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 60px;
-}
-
-.ojc-emoji-wrapper small {
-    font-size: 10px;
-    color: #888;
-    margin-bottom: 4px;
-    white-space: nowrap;
-}
-
-.ojc-symbol-toggle {
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    cursor: pointer;
-    padding: 6px 12px;
-    font-size: 22px;
-    line-height: 1;
-    transition: all 0.2s ease;
-}
-
-.ojc-symbol-toggle:hover {
-    background: #f0f0f0;
-    border-color: #bbb;
-}
-
-/* חלון בחירת האימוג'ים (Picker) - חשוב למניעת קפיצות */
-.ojc-symbol-picker {
-    display: none !important; /* מוסתר כברירת מחדל */
-    position: absolute;
-    bottom: 115%;
-    left: 0;
-    background: #fff;
-    border: 1px solid #ddd;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    border-radius: 10px;
-    gap: 10px;
-    padding: 12px;
-    z-index: 99999;
-    width: max-content;
-}
-
-/* כשה-JS מציג את האלמנט, נהפוך אותו לגריד */
-.ojc-symbol-picker[style*="display: block"] {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr);
-}
-
-.ojc-sym-item {
-    cursor: pointer;
-    font-size: 24px;
-    text-align: center;
-    padding: 5px;
-    border-radius: 5px;
-    transition: background 0.2s;
-}
-
-.ojc-sym-item:hover {
-    background: #f0f0f0;
-}
-
-/* תיבת מחיר סופי */
-.ojc-final-price-box {
-    margin-top: 25px;
-    padding: 15px;
-    background: #e9f5ff; /* כחול בהיר נקי */
-    border: 1px solid #c2e0ff;
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.3em;
-    border-radius: 8px;
-    color: #004a99;
-}
-
-#ojc-total-display {
-    color: #d63638; /* המחיר עצמו מודגש בצבע בולט */
-}
-
-/* עיצוב ה-Select באתר */
-select.ojc-trig {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background-color: #fff;
-    font-size: 15px;
-}
+/* --- Admin Styles (לוח בקרה) --- */
+.ojc-admin-card { background:#fff; padding:20px; border:1px solid #ccd0d4; border-radius:8px; margin-bottom:20px; }
+.ojc-field-card { border:1px solid #ccc; border-radius:8px; margin-bottom:15px; background:#f9f9f9; overflow:hidden; }
+.ojc-card-header { background:#eee; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; }
+.ojc-grid-3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; padding:15px; }
+.opt-section { padding:15px; background:#fff; border-top:1px solid #eee; }
