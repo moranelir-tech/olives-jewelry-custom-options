@@ -1,123 +1,182 @@
-/* --- מסגרת ראשית --- */
+/* קונטיינר ראשי */
 .ojc-branded-container { 
-    background:#fff; 
-    border:1px solid #e2e2e2; 
-    border-radius:15px; 
-    padding:20px; 
-    margin:25px 0; 
-    direction:rtl; 
-    text-align:right; 
+    background: #ffffff; 
+    border: 1px solid #e2e2e2; 
+    border-radius: 15px; 
+    padding: 20px; 
+    margin: 25px 0; 
+    direction: rtl; 
+    text-align: right; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-/* --- כותרת צעד 1 --- */
+/* כותרת הסקשן */
 .ojc-section-header { 
-    display:flex; 
-    align-items:center; 
-    gap:12px; 
-    margin-bottom:20px; 
-    border-bottom:1px solid #f0f0f0; 
-    padding-bottom:12px; 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    margin-bottom: 20px; 
+    border-bottom: 1px solid #f0f0f0; 
+    padding-bottom: 12px; 
 }
+
 .ojc-step-badge { 
-    background:#000; 
-    color:#fff; 
-    width:22px; 
-    height:22px; 
-    border-radius:50%; 
-    display:flex; 
-    align-items:center; 
-    justify-content:center; 
-    font-size:11px; 
+    background: #000; 
+    color: #fff; 
+    width: 24px; 
+    height: 24px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 12px; 
+    font-weight: bold;
 }
+
 .ojc-section-title { 
-    font-size:1.1em!important; 
-    font-weight:800!important; 
-    margin:0!important; 
+    font-size: 1.1em !important; 
+    font-weight: 800 !important; 
+    margin: 0 !important; 
+    color: #333;
 }
 
-/* --- שדות ואינפוטים --- */
-.ojc-field-row { margin-bottom:18px; }
-.ojc-label { display:block; font-size:14px; font-weight:700; margin-bottom:8px; color:#333; }
+/* שורות שדה */
+.ojc-field-row { 
+    margin-bottom: 20px; 
+}
 
-/* תיקון יישור: הלב והטקסט באותה שורה */
+.ojc-label { 
+    display: block; 
+    font-size: 14px; 
+    font-weight: 700; 
+    margin-bottom: 8px; 
+    color: #444;
+}
+
+/* עיצוב שדות טקסט ואימוג'י */
 .ojc-input-wrapper { 
     display: flex; 
-    flex-direction: row-reverse; /* הלב עובר לשמאל והטקסט לימין */
-    align-items: stretch; 
     border: 1px solid #ddd; 
     border-radius: 8px; 
-    background:#fff;
-    height: 45px; 
-    position: relative;
+    height: 48px; 
+    position: relative; 
+    background: #fff;
 }
 
 .ojc-input { 
     flex: 1; 
     border: none !important; 
-    padding: 0 12px !important; 
-    font-size: 16px; 
-    background: transparent !important;
-    height: 100% !important;
-    box-shadow: none !important;
+    padding: 0 15px !important; 
+    height: 100% !important; 
+    font-size: 15px !important;
+    outline: none !important;
 }
 
-/* --- אימוג'ים --- */
-.ojc-emoji-wrapper { 
-    display: flex; 
-    align-items: center; 
-    border-right: 1px solid #eee;
-    background: #f9f9f9;
-}
 .ojc-symbol-toggle { 
-    background: none; 
+    background: #fdfdfd; 
     border: none; 
-    padding: 0 12px; 
+    border-right: 1px solid #eee; 
+    padding: 0 15px; 
     cursor: pointer; 
-    font-size: 18px; 
+    font-size: 18px;
+    transition: background 0.2s;
 }
 
-/* חלונית האימוג'ים הקופצת */
+.ojc-symbol-toggle:hover {
+    background: #f0f0f0;
+}
+
 .ojc-symbol-picker { 
-    display:none; 
-    position:absolute; 
-    bottom:115%; 
-    left:0; 
-    background:#fff; 
-    border:1px solid #ddd; 
-    border-radius:10px; 
-    padding:10px; 
-    box-shadow:0 10px 30px rgba(0,0,0,0.2); 
-    z-index: 999999 !important; 
-    width:180px;
+    display: none; 
+    position: absolute; 
+    bottom: 55px; 
+    right: 0; 
+    background: #fff; 
+    border: 1px solid #ddd; 
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+    z-index: 1000; 
+    display: grid; 
+    grid-template-columns: repeat(5, 1fr); 
+    padding: 10px; 
+    border-radius: 10px;
 }
-.ojc-symbol-picker[style*="display: block"] { 
-    display:grid!important; 
-    grid-template-columns:repeat(4,1fr); 
-    gap:8px; 
-}
+
 .ojc-sym-item { 
-    cursor:pointer; 
-    font-size:20px; 
-    text-align:center; 
-    padding:5px; 
-    transition: 0.2s;
+    cursor: pointer; 
+    padding: 8px; 
+    font-size: 20px; 
+    text-align: center;
+    transition: transform 0.1s;
 }
-.ojc-sym-item:hover { background: #f0f0f0; border-radius: 5px; }
 
-/* --- רדיו וסלקט --- */
-select.ojc-trig { width:100%; height:45px; border-radius:8px; border:1px solid #ddd; padding:0 10px; }
-.ojc-radio-group { display:flex; flex-direction:column; gap:10px; }
-.ojc-radio-item { cursor:pointer; font-size:15px; display:flex; align-items:center; gap:8px; }
+.ojc-sym-item:hover {
+    transform: scale(1.3);
+}
 
-/* --- מחיר סופי --- */
+/* עיצוב רדיו פונטים (תמונות) */
+.ojc-radio-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.ojc-radio-item {
+    position: relative;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.ojc-radio-item:hover {
+    border-color: #ccc;
+    background: #fafafa;
+}
+
+/* כשהרדיו נבחר */
+.ojc-radio-item input[type="radio"]:checked + span {
+    font-weight: bold;
+    color: #000;
+}
+
+.ojc-radio-item:has(input:checked) {
+    border-color: #000;
+    background: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.ojc-radio-item img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    pointer-events: none;
+}
+
+/* מחיר סופי */
 .ojc-final-price-box { 
-    margin-top:25px; 
-    padding:15px; 
-    background:#fdfdfd; 
-    border-radius:10px; 
-    border:1px solid #eee; 
-    text-align:center; 
-    font-weight:bold; 
-    font-size:1.3em; 
+    margin-top: 25px; 
+    padding: 18px; 
+    background: #f8f8f8; 
+    border: 1px dashed #ddd;
+    border-radius: 12px; 
+    text-align: center; 
+    font-weight: 800; 
+    font-size: 1.25em; 
+    color: #222;
 }
-#ojc-total-display { color:#d63638; }
+
+#ojc-total-display { 
+    color: #d63638; 
+    margin-right: 5px;
+}
+
+/* התאמה לנייד */
+@media (max-width: 480px) {
+    .ojc-radio-group {
+        grid-template-columns: 1fr;
+    }
+}
