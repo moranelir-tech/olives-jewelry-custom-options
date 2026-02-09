@@ -1,70 +1,58 @@
 jQuery(document).ready(function($) {
-    function forceClose() { $('.ojc-symbol-picker').hide(); }
+    function updateFinalPrice() {
+        let container = $('.ojc-branded-container');
+        if(!container.length) return;
 
-    // עדכון מחיר חי
-    function updateP() {
-        const c = $('.ojc-branded-container'); 
-        if(!c.length) return;
-        let base = parseFloat(c.attr('data-base-price')) || 0;
-        let add = 0;
-        
+        let basePrice = parseFloat(container.attr('data-base-price')) || 0;
+        let extra = 0;
+
         $('.ojc-field-row:visible').each(function() {
-            add += parseFloat($(this).data('price')) || 0;
-            const sp = $(this).find('select option:selected').data('p');
-            if(sp) add += parseFloat(sp);
+            let rowPrice = parseFloat($(this).data('price')) || 0;
+            let hasInput = false;
+
+            // בדיקה אם הוזן טקסט
+            if($(this).find('.ojc-input').val()) hasInput = true;
+            // בדיקה אם נבחר רדיו/סלקט
+            let optPrice = 0;
+            let sel = $(this).find('select option:selected').data('p');
+            if(sel) { optPrice = parseFloat(sel); hasInput = true; }
+            
+            let rad = $(this).find('input[type="radio"]:checked').data('p');
+            if(rad) { optPrice = parseFloat(rad); hasInput = true; }
+
+            if(hasInput) extra += (rowPrice + optPrice);
         });
-        
-        const total = base + add;
-        $('#ojc-total-display').text('₪' + total.toLocaleString(undefined,{minimumFractionDigits:2}));
+
+        let total = basePrice + extra;
+        $('#ojc-total-display').text('₪' + total.toLocaleString(undefined, {minimumFractionDigits: 2}));
     }
 
-    // רענון לוגיקה מותנית
-    function refreshL() {
-        let vs = []; 
-        $('.ojc-trig, .variations select').each(function(){ 
-            if($(this).val()) vs.push($(this).val().trim()); 
+    $(document).on('show_variation', function(e, variation) {
+        $('.ojc-branded-container').attr('data-base-price', variation.display_price);
+        updateFinalPrice();
+    });
+
+    $(document).on('change input', '.ojc-input, .ojc-trig', function() {
+        // לוגיקה מותנית
+        let currentVals = [];
+        $('.ojc-trig:checked, select.ojc-trig option:selected').each(function(){ currentVals.push($(this).val()); });
+
+        $('.ojc-field-row[data-logic-req]').each(function() {
+            let reqs = $(this).attr('data-logic-req').split(',');
+            let show = reqs.some(r => currentVals.includes(r.trim()));
+            $(this).toggle(show);
         });
 
-        $('.ojc-field-row[data-logic-req]').each(function(){
-            const reqs = $(this).attr('data-logic-req').split(',').map(v=>v.trim());
-            const show = reqs.some(v => vs.includes(v));
-            if(show){ 
-                $(this).show(); 
-                $(this).find('input,select').prop('disabled',false); 
-            } else { 
-                $(this).hide(); 
-                $(this).find('input,select').prop('disabled',true); 
-            }
-        });
-        updateP();
-    }
-
-    // תמיכה בווריאציות ווקומרס
-    $(document).on('show_variation', function(e, v) { 
-        $('.ojc-branded-container').attr('data-base-price', v.display_price); 
-        updateP(); 
+        updateFinalPrice();
     });
 
     // אימוג'ים
-    $(document).on('click', '.ojc-symbol-toggle', function(e) { 
-        e.preventDefault(); e.stopPropagation(); 
-        const p = $(this).siblings('.ojc-symbol-picker'); 
-        const vis = p.is(':visible'); 
-        forceClose(); 
-        if(!vis) p.show(); 
+    $(document).on('click', '.ojc-symbol-toggle', function(e){ e.preventDefault(); $(this).next().toggle(); });
+    $(document).on('click', '.ojc-sym-item', function(){
+        let inp = $(this).closest('.ojc-input-wrapper').find('.ojc-input');
+        inp.val(inp.val() + $(this).text()).trigger('input');
+        $(this).parent().hide();
     });
 
-    $(document).on('click', '.ojc-sym-item', function() { 
-        const i = $(this).closest('.ojc-input-wrapper').find('.ojc-input'); 
-        i.val(i.val() + $(this).text()).trigger('change'); 
-        forceClose(); 
-    });
-
-    $(document).on('click', function(e){ 
-        if(!$(e.target).closest('.ojc-input-wrapper').length) forceClose(); 
-    });
-
-    $(document).on('change', '.ojc-trig, .variations select', refreshL);
-    
-    refreshL();
+    updateFinalPrice();
 });
